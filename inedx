@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>💥 網頁版炸麥工具 - 聲卡毀滅者</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0b2e 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 550px;
+            width: 100%;
+            background: rgba(10, 10, 20, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            padding: 1.8rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(255,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ff4d4d, #ff8080);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(255,0,0,0.3);
+        }
+
+        .sub {
+            text-align: center;
+            color: #aaa;
+            font-size: 0.75rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 0.8rem;
+        }
+
+        .card {
+            background: #1e1a2f;
+            border-radius: 1.2rem;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.2rem;
+            transition: all 0.2s;
+            border-left: 4px solid #ff4d4d;
+        }
+
+        .flex-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #ddd;
+            font-size: 1rem;
+        }
+
+        .value {
+            color: #ff8888;
+            font-family: monospace;
+            font-weight: bold;
+            background: #00000055;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 180px;
+            height: 5px;
+            border-radius: 10px;
+            background: #332a55;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff4d4d;
+            cursor: pointer;
+            box-shadow: 0 0 8px #ff0000;
+        }
+
+        .toggle-switch {
+            width: 52px;
+            height: 26px;
+            background: #3a2a5a;
+            border-radius: 40px;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: #ff4d4d;
+            box-shadow: 0 0 6px #ff4d4d;
+        }
+
+        .toggle-switch .thumb {
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            transition: 0.2s;
+        }
+
+        .toggle-switch.active .thumb {
+            left: 27px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0 15px;
+        }
+
+        button {
+            flex: 1;
+            background: #2a2242;
+            border: none;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 60px;
+            color: white;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 2px 6px black;
+        }
+
+        button#startBtn {
+            background: #00b894;
+            color: white;
+        }
+
+        button#stopBtn {
+            background: #d63031;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        .status {
+            background: #0f0c1c;
+            padding: 10px;
+            border-radius: 60px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-family: monospace;
+            color: #0f0;
+            margin-top: 10px;
+        }
+
+        .warning {
+            font-size: 0.7rem;
+            color: #ffaa88;
+            text-align: center;
+            margin-top: 1rem;
+            border-top: 1px solid #332a55;
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💥 炸麥工具</h1>
+    <div class="sub">網頁版 · 即時毀滅 · 免安裝</div>
+
+    <!-- 爆麥 -->
+    <div class="card">
+        <div class="flex-row">
+            <label>🎤 爆麥效果</label>
+            <div id="blastToggle" class="toggle-switch active">
+                <div class="thumb"></div>
+            </div>
+        </div>
+        <div class="flex-row">
+            <span>增益 (0 ~ 100萬)</span>
+            <span class="value" id="blastVal">900,000</span>
+        </div>
+        <input type="range" id="blastGain" min="0" max="1000" value="900" step="1">
+    </div>
+
+    <!-- 雜訊 -->
+    <div class="card">
+        <div class="flex-row">
+            <label>📢 雜訊效果</label>
+            <div id="noiseToggle" class="toggle-switch active">
+                <div class="thumb"></div>
+            </div>
+        </div>
+        <div class="flex-row">
+            <span>強度 (0 ~ 5000)</span>
+            <span class="value" id="noiseVal">3,000</span>
+        </div>
+        <input type="range" id="noiseLevel" min="0" max="100" value="60" step="1">
+    </div>
+
+    <!-- 回音 -->
+    <div class="card">
+        <div class="flex-row">
+            <label>🔊 回音效果</label>
+            <div id="echoToggle" class="toggle-switch">
+                <div class="thumb"></div>
+            </div>
+        </div>
+        <div class="flex-row">
+            <span>延遲 (秒)</span>
+            <span class="value" id="delayVal">0.30</span>
+        </div>
+        <input type="range" id="echoDelay" min="0" max="100" value="30" step="1">
+        <div class="flex-row" style="margin-top: 10px;">
+            <span>衰減</span>
+            <span class="value" id="decayVal">0.60</span>
+        </div>
+        <input type="range" id="echoDecay" min="0" max="100" value="60" step="1">
+    </div>
+
+    <!-- 控制按鈕 -->
+    <div class="btn-group">
+        <button id="startBtn">▶ 啟動炸麥</button>
+        <button id="stopBtn">⏹ 停止炸麥</button>
+    </div>
+
+    <div class="status" id="statusText">⚫ 未啟動</div>
+    <div class="warning">
+        ⚠ 請先調低喇叭音量！建議搭配耳機或獨立喇叭。<br>
+        💡 首次使用需允許麥克風權限，關閉頁面即釋放音訊。
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ----- DOM 元素 -----
+        const blastToggle = document.getElementById('blastToggle');
+        const noiseToggle = document.getElementById('noiseToggle');
+        const echoToggle = document.getElementById('echoToggle');
+        const blastSlider = document.getElementById('blastGain');
+        const noiseSlider = document.getElementById('noiseLevel');
+        const delaySlider = document.getElementById('echoDelay');
+        const decaySlider = document.getElementById('echoDecay');
+        const blastVal = document.getElementById('blastVal');
+        const noiseVal = document.getElementById('noiseVal');
+        const delayVal = document.getElementById('delayVal');
+        const decayVal = document.getElementById('decayVal');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusDiv = document.getElementById('statusText');
+
+        // 參數（真正的數值）
+        let blastEnabled = true;
+        let noiseEnabled = true;
+        let echoEnabled = false;
+        let blastGainLinear = 900000;   // 實際增益值
+        let noiseLinear = 3000;
+        let echoDelaySec = 0.30;
+        let echoDecayVal = 0.60;
+
+        // Web Audio 全域變數
+        let audioContext = null;
+        let mediaStream = null;
+        let sourceNode = null;
+        let gainNode = null;          // 爆麥用
+        let delayNode = null;
+        let feedbackGain = null;      // 回音衰減用
+        let noiseWorkletNode = null;  // 自定義雜訊
+        let isRunning = false;
+
+        // 輔助函數：更新顯示
+        function updateUI() {
+            blastVal.innerText = Math.round(blastGainLinear).toLocaleString();
+            noiseVal.innerText = Math.round(noiseLinear);
+            delayVal.innerText = echoDelaySec.toFixed(2);
+            decayVal.innerText = echoDecayVal.toFixed(2);
+        }
+
+        // 監聽滑桿
+        blastSlider.addEventListener('input', (e) => {
+            let percent = parseInt(e.target.value, 10); // 0~1000
+            blastGainLinear = (percent / 1000) * 1000000;
+            updateUI();
+            if (gainNode && isRunning) gainNode.gain.value = blastEnabled ? blastGainLinear : 1;
+        });
+        noiseSlider.addEventListener('input', (e) => {
+            let percent = parseInt(e.target.value, 10);
+            noiseLinear = (percent / 100) * 5000;
+            updateUI();
+        });
+        delaySlider.addEventListener('input', (e) => {
+            let percent = parseInt(e.target.value, 10);
+            echoDelaySec = (percent / 100) * 1.0;   // 最大1秒
+            updateUI();
+            if (delayNode && isRunning) delayNode.delayTime.value = echoDelaySec;
+        });
+        decaySlider.addEventListener('input', (e) => {
+            let percent = parseInt(e.target.value, 10);
+            echoDecayVal = percent / 100;
+            updateUI();
+            if (feedbackGain && isRunning) feedbackGain.gain.value = echoDecayVal;
+        });
+
+        // 開關外觀 + 狀態
+        function setupToggle(toggle, isEnabled, onChange) {
+            if (isEnabled) toggle.classList.add('active');
+            else toggle.classList.remove('active');
+            toggle.addEventListener('click', () => {
+                const newState = !toggle.classList.contains('active');
+                if (newState) toggle.classList.add('active');
+                else toggle.classList.remove('active');
+                onChange(newState);
+            });
+        }
+
+        setupToggle(blastToggle, blastEnabled, (state) => {
+            blastEnabled = state;
+            if (gainNode && isRunning) gainNode.gain.value = blastEnabled ? blastGainLinear : 1;
+        });
+        setupToggle(noiseToggle, noiseEnabled, (state) => {
+            noiseEnabled = state;
+        });
+        setupToggle(echoToggle, echoEnabled, (state) => {
+            echoEnabled = state;
+            // 重新連接效果鏈
+            if (isRunning && audioContext) reconnectEffects();
+        });
+
+        // 效果器重新接線（因為回音開關影響拓樸）
+        function reconnectEffects() {
+            if (!audioContext || !sourceNode || !gainNode) return;
+            try {
+                // 中斷所有連接
+                sourceNode.disconnect();
+                gainNode.disconnect();
+                if (delayNode) delayNode.disconnect();
+                if (feedbackGain) feedbackGain.disconnect();
+                if (noiseWorkletNode) noiseWorkletNode.disconnect();
+
+                // 重新建立連接鏈： source -> gain -> (延遲? 或直接輸出)
+                sourceNode.connect(gainNode);
+                if (echoEnabled && delayNode && feedbackGain) {
+                    gainNode.connect(delayNode);
+                    delayNode.connect(feedbackGain);
+                    feedbackGain.connect(delayNode);   // 回授迴路
+                    delayNode.connect(audioContext.destination);
+                } else {
+                    gainNode.connect(audioContext.destination);
+                }
+
+                // 如果有雜訊節點，再接入
+                if (noiseWorkletNode) {
+                    noiseWorkletNode.connect(audioContext.destination);
+                }
+            } catch(e) { console.warn(e); }
+        }
+
+        // 建立自訂雜訊 (AudioWorklet)
+        async function createNoiseNode(context) {
+            // 定義 Worklet 程式碼 (直接內嵌 Blob)
+            const workletCode = `
+                class NoiseProcessor extends AudioWorkletProcessor {
+                    process(inputs, outputs, parameters) {
+                        const output = outputs[0];
+                        for (let channel = 0; channel < output.length; channel++) {
+                            const outputChannel = output[channel];
+                            for (let i = 0; i < outputChannel.length; i++) {
+                                outputChannel[i] = (Math.random() * 2 - 1) * 0.8;
+                            }
+                        }
+                        return true;
+                    }
+                }
+                registerProcessor('noise-processor', NoiseProcessor);
+            `;
+            const blob = new Blob([workletCode], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            await context.audioWorklet.addModule(url);
+            URL.revokeObjectURL(url);
+            const noiseNode = new AudioWorkletNode(context, 'noise-processor');
+            let noiseGain = context.createGain();
+            noiseGain.gain.value = 0;
+            noiseNode.connect(noiseGain);
+            return { node: noiseNode, gain: noiseGain };
+        }
+
+        // 更新雜訊音量（根據開關＋強度）
+        function updateNoiseVolume() {
+            if (!noiseWorkletNode || !noiseWorkletNode.gain) return;
+            const targetVol = (noiseEnabled ? (noiseLinear / 32768.0) * 0.8 : 0);
+            noiseWorkletNode.gain.gain.value = Math.min(0.9, targetVol);
+        }
+
+        // 停止一切
+        async function stopBlasting() {
+            if (!isRunning) return;
+            isRunning = false;
+            if (audioContext) {
+                await audioContext.close();
+                audioContext = null;
+            }
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            sourceNode = null;
+            gainNode = null;
+            delayNode = null;
+            feedbackGain = null;
+            noiseWorkletNode = null;
+            statusDiv.innerText = '⚫ 已停止';
+            statusDiv.style.color = '#ff8888';
+        }
+
+        // 啟動炸麥
+        async function startBlasting() {
+            if (isRunning) await stopBlasting();
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaStream = stream;
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                await audioContext.resume();
+                sourceNode = audioContext.createMediaStreamSource(stream);
+
+                // 爆麥節點
+                gainNode = audioContext.createGain();
+                gainNode.gain.value = blastEnabled ? blastGainLinear : 1;
+
+                // 回音相關節點
+                delayNode = audioContext.createDelay();
+                delayNode.delayTime.value = echoDelaySec;
+                feedbackGain = audioContext.createGain();
+                feedbackGain.gain.value = echoDecayVal;
+
+                // 雜訊
+                const { node, gain } = await createNoiseNode(audioContext);
+                noiseWorkletNode = { node, gain };
+                noiseWorkletNode.gain.gain.value = 0;
+                noiseWorkletNode.node.connect(audioContext.destination);
+                updateNoiseVolume();
+
+                // 主效果鏈接（依據 echoEnabled）
+                sourceNode.connect(gainNode);
+                if (echoEnabled) {
+                    gainNode.connect(delayNode);
+                    delayNode.connect(feedbackGain);
+                    feedbackGain.connect(delayNode);
+                    delayNode.connect(audioContext.destination);
+                } else {
+                    gainNode.connect(audioContext.destination);
+                }
+
+                isRunning = true;
+                statusDiv.innerText = '💥 炸麥進行中（請降低喇叭音量）';
+                statusDiv.style.color = '#ff5555';
+            } catch (err) {
+                console.error(err);
+                statusDiv.innerText = '❌ 無法取得麥克風權限，請檢查並重新整理頁面';
+                statusDiv.style.color = '#ffaaaa';
+                isRunning = false;
+            }
+        }
+
+        // 定時更新雜訊強度（即時反應滑桿）
+        setInterval(() => {
+            if (isRunning && noiseWorkletNode && noiseWorkletNode.gain) {
+                const target = (noiseEnabled ? (noiseLinear / 32768.0) * 0.8 : 0);
+                noiseWorkletNode.gain.gain.value = Math.min(0.9, target);
+            }
+            if (isRunning && gainNode) {
+                gainNode.gain.value = blastEnabled ? blastGainLinear : 1;
+            }
+            if (isRunning && delayNode && feedbackGain) {
+                delayNode.delayTime.value = echoDelaySec;
+                feedbackGain.gain.value = echoDecayVal;
+            }
+        }, 80);
+
+        startBtn.addEventListener('click', startBlasting);
+        stopBtn.addEventListener('click', stopBlasting);
+        updateUI();
+
+        // 頁面關閉清理
+        window.addEventListener('beforeunload', () => {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(t => t.stop());
+            }
+            if (audioContext) {
+                audioContext.close();
+            }
+        });
+    })();
+</script>
+</body>
+</html>
